@@ -1,0 +1,34 @@
+import subprocess
+import time
+from docx import Document
+
+def escanear_rango_de_ips(rango_ips,archivo_word):
+    # Construye el comando Nmap
+    comando = ["nmap", "-T3", rango_ips]
+
+    try:
+        # Ejecuta el comando Nmap y captura la salida
+        salida = subprocess.check_output(comando, stderr=subprocess.STDOUT, universal_newlines=True)
+        # Imprime los resultados del escaneo
+        print(salida)
+         
+        # Guarda los resultados del escaneo en un archivo Word
+        doc = Document()
+        doc.add_heading('Resultado del escaneo: ', level=1)
+        doc.add_paragraph(salida)
+        doc.save(archivo_word)
+
+    except subprocess.CalledProcessError as e:
+        # Si hay un error al ejecutar el comando, imprime el mensaje de error
+        print("Error al ejecutar Nmap:", e.output)
+
+def escanear_rango_cada_cierto_tiempo(rango_ips,archivo_word,tiempo):
+    while True:
+       escanear_rango_de_ips(rango_ips,archivo_word)
+       time.sleep(tiempo)
+
+# Uso de la función
+ip = input("Ingrese la dirección IP o rango a escanear: ")
+archivo_word = "Resultado_escaneo.docx"
+escanear_rango_cada_cierto_tiempo(ip,archivo_word, 10)  # Escanea cada 10 segundos, puedes cambiar este valor
+
